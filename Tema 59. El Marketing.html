@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-950 text-slate-100">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Oposiciones ADE (FP) - GVA - Protocolo C.A.R.D.</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Inter Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              900: '#312e81',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Custom CSS for Flip Animations and Ergonomics -->
+  <style>
+    /* iOS Safe Area & Ergonomics */
+    body {
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* Perspective container for 3D flip */
+    .perspective-1000 {
+      perspective: 1000px;
+    }
+
+    .flip-card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      text-align: left;
+      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      transform-style: preserve-3d;
+    }
+
+    .flip-card-inner.is-flipped {
+      transform: rotateY(180deg);
+    }
+
+    .flip-card-front, .flip-card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      border-radius: 1.25rem;
+      overflow-y: auto;
+    }
+
+    .flip-card-back {
+      transform: rotateY(180deg);
+    }
+
+    /* Custom scrollbar styling for study text */
+    ::-webkit-scrollbar {
+      width: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(30, 41, 59, 0.5);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(99, 102, 241, 0.5);
+      border-radius: 10px;
+    }
+  </style>
+</head>
+
+<body class="h-full flex flex-col bg-slate-950 text-slate-100 antialiased selection:bg-brand-500 selection:text-white pb-20">
+
+  <!-- Top App Header -->
+  <header class="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-md border-b border-slate-800/80 px-4 py-3">
+    <div class="max-w-md mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-400 flex items-center justify-center text-white shadow-lg shadow-brand-500/20">
+          <i class="fa-solid fa-brain text-lg"></i>
+        </div>
+        <div>
+          <h1 class="text-xs font-bold text-slate-400 tracking-wider uppercase">CARD GVA • ADE (FP)</h1>
+          <p class="text-sm font-extrabold text-white leading-none">Tema 59: Inv. de Mercados</p>
+        </div>
+      </div>
+      <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5 animate-pulse"></span>
+        GVA 2026
+      </span>
+    </div>
+  </header>
+
+  <!-- Main Scrollable App Container -->
+  <main class="flex-1 max-w-md w-full mx-auto px-4 py-4 overflow-y-auto">
+
+    <!-- SECTION 1: TARJETAS DE MEMORIA (FLASHCARDS INTERACTIVAS) -->
+    <section id="sec-flashcards" class="space-y-4">
+      
+      <!-- Progress & Header Stats -->
+      <div class="bg-slate-900/80 rounded-2xl p-4 border border-slate-800 shadow-xl flex items-center justify-between">
+        <div>
+          <span class="text-xs font-semibold uppercase tracking-wider text-brand-400">Progreso de Repaso</span>
+          <div class="flex items-baseline space-x-2 mt-0.5">
+            <span id="fc-progress-text" class="text-2xl font-black text-white">Tarjeta 1 / 5</span>
+          </div>
+        </div>
+        <div class="flex items-center space-x-2">
+          <button id="btn-reset-fc" onclick="resetFlashcards()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-300 border border-slate-700 transition flex items-center gap-1.5 active:scale-95">
+            <i class="fa-solid fa-rotate-left"></i>
+            <span>Reiniciar</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Flashcard Interactive 3D Canvas -->
+      <div class="perspective-1000 w-full h-[360px]">
+        <div id="flashcard-inner" class="flip-card-inner cursor-pointer" onclick="toggleCardFlip()">
+          
+          <!-- Front Side -->
+          <div class="flip-card-front bg-gradient-to-b from-slate-900 to-slate-900/95 border-2 border-brand-500/40 p-6 flex flex-col justify-between shadow-2xl relative">
+            <div class="flex justify-between items-center">
+              <span class="text-xs font-extrabold uppercase px-3 py-1 rounded-full bg-brand-500/20 text-brand-300 border border-brand-500/30">Anverso • Pregunta</span>
+              <span class="text-xs text-slate-400 flex items-center gap-1">
+                <i class="fa-regular fa-hand-pointer"></i> Toca para girar
+              </span>
+            </div>
+            
+            <div class="my-auto py-4">
+              <span id="fc-category" class="text-xs font-semibold text-brand-400 uppercase tracking-widest block mb-2">Tema 59</span>
+              <h2 id="fc-front-text" class="text-xl font-bold text-white leading-snug">
+                ¿Cuáles son las 5 etapas en la evolución del Enfoque Comercial?
+              </h2>
+            </div>
+
+            <div class="flex items-center justify-between text-xs text-slate-400 pt-3 border-t border-slate-800">
+              <span id="fc-status-badge" class="px-2.5 py-1 rounded-md bg-slate-800 text-slate-300">Pendiente</span>
+              <span class="text-brand-400 font-medium flex items-center gap-1">
+                <i class="fa-solid fa-arrows-rotate"></i> Girar 180°
+              </span>
+            </div>
+          </div>
+
+          <!-- Back Side -->
+          <div class="flip-card-back bg-gradient-to-b from-slate-900 to-slate-950 border-2 border-emerald-500/40 p-6 flex flex-col justify-between shadow-2xl">
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-xs font-extrabold uppercase px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Reverso • Clave C.A.R.D.</span>
+              <span class="text-xs text-slate-400 flex items-center gap-1">
+                <i class="fa-solid fa-circle-check text-emerald-400"></i> Respuesta
+              </span>
+            </div>
+
+            <div class="my-auto overflow-y-auto pr-1 py-2">
+              <div id="fc-back-content" class="text-sm font-medium text-slate-200 leading-relaxed space-y-2">
+                <!-- Content injected via JS -->
+              </div>
+            </div>
+
+            <div class="pt-3 border-t border-slate-800 text-xs text-slate-400 flex justify-between items-center">
+              <span>Selecciona tu nivel de retención abajo</span>
+              <i class="fa-solid fa-angles-down text-brand-400"></i>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Self Evaluation Action Buttons -->
+      <div class="bg-slate-900/90 rounded-2xl p-4 border border-slate-800 shadow-xl space-y-3">
+        <p class="text-xs font-bold uppercase tracking-wider text-slate-400 text-center">Autoevaluación de Memoria Evocativa</p>
+        <div class="grid grid-cols-3 gap-2">
+          
+          <button onclick="evaluateCard('hard', event)" class="flex flex-col items-center justify-center p-3 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 transition active:scale-95 space-y-1">
+            <i class="fa-solid fa-triangle-exclamation text-base"></i>
+            <span class="text-xs font-bold">Difícil</span>
+            <span class="text-[10px] text-rose-300/70">Repasar ya</span>
+          </button>
+
+          <button onclick="evaluateCard('medium', event)" class="flex flex-col items-center justify-center p-3 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 transition active:scale-95 space-y-1">
+            <i class="fa-solid fa-circle-half-stroke text-base"></i>
+            <span class="text-xs font-bold">Regular</span>
+            <span class="text-[10px] text-amber-300/70">Dudosa</span>
+          </button>
+
+          <button onclick="evaluateCard('easy', event)" class="flex flex-col items-center justify-center p-3 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 transition active:scale-95 space-y-1">
+            <i class="fa-solid fa-circle-check text-base"></i>
+            <span class="text-xs font-bold">Fácil</span>
+            <span class="text-[10px] text-emerald-300/70">Dominada</span>
+          </button>
+
+        </div>
+
+        <div class="flex items-center justify-between pt-2">
+          <button onclick="navigateCard(-1)" class="text-xs font-medium text-slate-400 hover:text-white px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 flex items-center gap-1 active:scale-95">
+            <i class="fa-solid fa-chevron-left"></i> Anterior
+          </button>
+          <span id="fc-counter" class="text-xs font-semibold text-slate-400">1 / 5</span>
+          <button onclick="navigateCard(1)" class="text-xs font-medium text-slate-400 hover:text-white px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 flex items-center gap-1 active:scale-95">
+            Siguiente <i class="fa-solid fa-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- SECTION 2: TEST RÁPIDO DE EVOCACIÓN -->
+    <section id="sec-test" class="space-y-4 hidden">
+      
+      <div class="bg-slate-900/80 rounded-2xl p-4 border border-slate-800 shadow-xl flex items-center justify-between">
+        <div>
+          <span class="text-xs font-semibold uppercase tracking-wider text-brand-400">Test Evocativo de Examen</span>
+          <h2 class="text-base font-extrabold text-white">Tema 59 & Parte Común</h2>
+        </div>
+        <div class="text-right">
+          <span id="test-score-badge" class="px-3 py-1 rounded-full bg-brand-500/20 text-brand-300 font-extrabold text-sm border border-brand-500/30">
+            Score: 0/5
+          </span>
+        </div>
+      </div>
+
+      <!-- Question List Container -->
+      <div id="test-questions-container" class="space-y-4">
+        <!-- Injected dynamically via JS -->
+      </div>
+
+      <!-- Retake Button -->
+      <div class="pt-2 pb-6">
+        <button onclick="resetTest()" class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white font-bold text-sm shadow-xl shadow-brand-500/20 transition active:scale-95 flex items-center justify-center gap-2">
+          <i class="fa-solid fa-rotate-right"></i>
+          <span>Reiniciar Test de Evocación</span>
+        </button>
+      </div>
+
+    </section>
+
+    <!-- SECTION 3: PÍLDORA MODULAR (PARTE COMÚN BLOQUE MARKETING) -->
+    <section id="sec-pills" class="space-y-4 hidden">
+      
+      <div class="bg-slate-900/80 rounded-2xl p-4 border border-slate-800 shadow-xl">
+        <span class="text-xs font-semibold uppercase tracking-wider text-brand-400">Esqueleto Reutilizable C.A.R.D.</span>
+        <h2 class="text-base font-extrabold text-white mt-0.5">Parte Común: Bloque Marketing (Temas 59, 60 y 61)</h2>
+        <p class="text-xs text-slate-400 mt-1">Memoriza esta estructura modular común para integrarla en la introducción y conclusión de tus exámenes.</p>
+      </div>
+
+      <!-- Accordion Container -->
+      <div class="space-y-3">
+
+        <!-- Accordion Item 1 -->
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl overflow-hidden shadow-md">
+          <button onclick="toggleAccordion('acc-1')" class="w-full p-4 text-left flex items-center justify-between bg-slate-800/40 hover:bg-slate-800/80 transition">
+            <span class="text-sm font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-scale-balanced text-brand-400"></i>
+              1. Marco & Trinomio Normativo
+            </span>
+            <i id="acc-1-icon" class="fa-solid fa-chevron-down text-slate-400 text-xs transition-transform duration-300"></i>
+          </button>
+          <div id="acc-1" class="hidden p-4 text-xs text-slate-300 space-y-3 border-t border-slate-800/60 leading-relaxed bg-slate-950/40">
+            <p><strong class="text-white">Justificación Socioeconómica:</strong> En un entorno caracterizado por la transformación digital e incertidumbre del mercado, la función comercial y de marketing es el eje vertebrador de la competitividad y supervivencia empresarial, pasando del enfoque transaccional al relacional.</p>
+            <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 space-y-2">
+              <span class="text-brand-300 font-bold block text-[11px] uppercase tracking-wider">Trinomio Legal Obligatorio:</span>
+              <ul class="list-disc list-inside space-y-1 text-[11px] text-slate-300">
+                <li><strong class="text-slate-200">1. Estatal General:</strong> LOE 2/2006 modificada por LOMLOE 3/2020.</li>
+                <li><strong class="text-slate-200">2. FP Estatal:</strong> LO 3/2022 y RD 659/2023 (Grados C, D y E).</li>
+                <li><strong class="text-slate-200">3. Autonómico GVA:</strong> Decretos curriculares regulados en el DOGV.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accordion Item 2 -->
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl overflow-hidden shadow-md">
+          <button onclick="toggleAccordion('acc-2')" class="w-full p-4 text-left flex items-center justify-between bg-slate-800/40 hover:bg-slate-800/80 transition">
+            <span class="text-sm font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-graduation-cap text-brand-400"></i>
+              2. Vinculación Currículo FP GVA (ADE)
+            </span>
+            <i id="acc-2-icon" class="fa-solid fa-chevron-down text-slate-400 text-xs transition-transform duration-300"></i>
+          </button>
+          <div id="acc-2" class="hidden p-4 text-xs text-slate-300 space-y-3 border-t border-slate-800/60 leading-relaxed bg-slate-950/40">
+            <p>Delimitación estricta de la <strong class="text-white">atribución docente de ADE (FP)</strong> para centrarse en la gestión económico-financiera y simulación empresarial sin invadir los módulos exclusivos de Comercio:</p>
+            <ul class="space-y-2 text-[11px]">
+              <li class="p-2 rounded-lg bg-slate-900 border border-slate-800">
+                <strong class="text-brand-300 font-bold block">Digitalización aplicada (GM 1664 / GS 1665):</strong> Herramientas de medición, analítica de datos y entornos virtuales.
+              </li>
+              <li class="p-2 rounded-lg bg-slate-900 border border-slate-800">
+                <strong class="text-brand-300 font-bold block">Itinerario Personal Empleabilidad I y II (1709 / 1710):</strong> Viabilidad comercial y plan emprendedor.
+              </li>
+              <li class="p-2 rounded-lg bg-slate-900 border border-slate-800">
+                <strong class="text-brand-300 font-bold block">Proyecto Intermodular (Grado Medio y Superior):</strong> Investigación de mercado y diseño del Marketing Mix.
+              </li>
+              <li class="p-2 rounded-lg bg-slate-900 border border-slate-800">
+                <strong class="text-brand-300 font-bold block">Gestión Económica y Financiera (0623):</strong> Presupuestación comercial, costes y márgenes de precio.
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Accordion Item 3 -->
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl overflow-hidden shadow-md">
+          <button onclick="toggleAccordion('acc-3')" class="w-full p-4 text-left flex items-center justify-between bg-slate-800/40 hover:bg-slate-800/80 transition">
+            <span class="text-sm font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-chalkboard-user text-brand-400"></i>
+              3. Aplicación Didáctica Transversal
+            </span>
+            <i id="acc-3-icon" class="fa-solid fa-chevron-down text-slate-400 text-xs transition-transform duration-300"></i>
+          </button>
+          <div id="acc-3" class="hidden p-4 text-xs text-slate-300 space-y-3 border-t border-slate-800/60 leading-relaxed bg-slate-950/40">
+            <div class="space-y-2 text-[11px]">
+              <p><strong class="text-emerald-400 font-bold">Resultados de Aprendizaje (RA):</strong> Comprensión de decisiones de mercado, análisis micro/macroentorno y cálculo del precio e ingresos derivados de la estrategia comercial.</p>
+              <p><strong class="text-emerald-400 font-bold">Metodología Activa:</strong> Aprendizaje Basado en Proyectos (ABP) y Método del Caso (simulación del estudio de mercado de una PYME valenciana).</p>
+              <p><strong class="text-emerald-400 font-bold">Digitalización y Sostenibilidad:</strong> Integración de herramientas Big Data, CRM y directrices ESG (sostenibilidad social/medioambiental) ex RD 659/2023.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accordion Item 4 -->
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl overflow-hidden shadow-md">
+          <button onclick="toggleAccordion('acc-4')" class="w-full p-4 text-left flex items-center justify-between bg-slate-800/40 hover:bg-slate-800/80 transition">
+            <span class="text-sm font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-rocket text-brand-400"></i>
+              4. Conclusión y Prospectiva
+            </span>
+            <i id="acc-4-icon" class="fa-solid fa-chevron-down text-slate-400 text-xs transition-transform duration-300"></i>
+          </button>
+          <div id="acc-4" class="hidden p-4 text-xs text-slate-300 space-y-2 border-t border-slate-800/60 leading-relaxed bg-slate-950/40">
+            <p>La gestión comercial evoluciona hacia el marketing relacional, predictivo e inmersivo (<strong class="text-white">Omnicanalidad, IA generativa y analítica de datos</strong>).</p>
+            <p>Para el alumnado de FP en la Comunitat Valenciana, dominar la investigación comercial garantiza la viabilidad económico-financiera y la empleabilidad estratégica.</p>
+          </div>
+        </div>
+
+        <!-- Accordion Item 5 -->
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl overflow-hidden shadow-md">
+          <button onclick="toggleAccordion('acc-5')" class="w-full p-4 text-left flex items-center justify-between bg-slate-800/40 hover:bg-slate-800/80 transition">
+            <span class="text-sm font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-book-bookmark text-brand-400"></i>
+              5. Bibliografía & Autores Clave
+            </span>
+            <i id="acc-5-icon" class="fa-solid fa-chevron-down text-slate-400 text-xs transition-transform duration-300"></i>
+          </button>
+          <div id="acc-5" class="hidden p-4 text-xs text-slate-300 space-y-2 border-t border-slate-800/60 leading-relaxed bg-slate-950/40">
+            <ul class="space-y-1.5 text-[11px] list-disc list-inside">
+              <li><strong class="text-slate-200">García Villalobos et al. (2019):</strong> <em>Fundamentos de Marketing</em>. Ed. San Pablo CEU.</li>
+              <li><strong class="text-slate-200">Godin, S. (2019):</strong> <em>Esto es Marketing</em>. Alienta Editorial.</li>
+              <li><strong class="text-slate-200">Munuera, J.L. & Rodríguez, A.I. (2007):</strong> <em>Estrategias de Marketing</em>. ESIC.</li>
+              <li><strong class="text-slate-200">Peter Drucker / Peter Fisk:</strong> Soberanía del consumidor y multiplicador económico.</li>
+              <li><strong class="text-slate-200">Fuentes Oficiales:</strong> DOGV, Ministerio de Educación (MEFPD), INE y IVE.</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Bottom Mobile iPhone Tab Bar -->
+  <nav class="fixed bottom-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-lg border-t border-slate-800 px-4 py-2">
+    <div class="max-w-md mx-auto grid grid-cols-3 gap-1">
+      
+      <button id="tab-btn-flashcards" onclick="switchTab('flashcards')" class="flex flex-col items-center justify-center py-1.5 px-3 rounded-xl transition text-brand-400 bg-brand-500/10">
+        <i class="fa-solid fa-clone text-base"></i>
+        <span class="text-[10px] font-bold mt-1">Tarjetas</span>
+      </button>
+
+      <button id="tab-btn-test" onclick="switchTab('test')" class="flex flex-col items-center justify-center py-1.5 px-3 rounded-xl transition text-slate-400 hover:text-slate-200">
+        <i class="fa-solid fa-[#0] fa-list-check text-base"></i>
+        <span class="text-[10px] font-bold mt-1">Test Evocación</span>
+      </button>
+
+      <button id="tab-btn-pills" onclick="switchTab('pills')" class="flex flex-col items-center justify-center py-1.5 px-3 rounded-xl transition text-slate-400 hover:text-slate-200">
+        <i class="fa-solid fa-capsules text-base"></i>
+        <span class="text-[10px] font-bold mt-1">Píldora Común</span>
+      </button>
+
+    </div>
+  </nav>
+
+  <!-- JavaScript Logic -->
+  <script>
+    // State management
+    const state = {
+      activeTab: 'flashcards',
+      currentCardIndex: 0,
+      isFlipped: false,
+      cardsEvaluations: {}, // id -> 'easy' | 'medium' | 'hard'
+      userAnswers: {},     // qId -> selectedIndex
+    };
+
+    // Flashcard Data Array
+    const flashcardsData = [
+      {
+        id: 1,
+        category: "Evolución Comercial",
+        front: "¿Cuáles son las 5 etapas en la evolución del Enfoque Comercial?",
+        back: `
+          <ol class="list-decimal list-inside space-y-1.5 text-xs text-slate-200">
+            <li><strong class="text-brand-300">Producción:</strong> Eficiencia y bajo coste. La demanda supera la oferta.</li>
+            <li><strong class="text-brand-300">Producto:</strong> Calidad técnica (Riesgo: <em>Miopía del marketing</em>).</li>
+            <li><strong class="text-brand-300">Ventas:</strong> Promoción agresiva para dar salida al stock sobrante.</li>
+            <li><strong class="text-brand-300">Marketing:</strong> Satisfacer necesidades y deseos entregando valor.</li>
+            <li><strong class="text-brand-300">Social / Holístico:</strong> Sostenibilidad, ética y bienestar colectivo.</li>
+          </ol>
+        `
+      },
+      {
+        id: 2,
+        category: "Fundamentos Socioeconómicos",
+        front: "¿Cuáles son los 4 Fundamentos Socioeconómicos del Marketing según Peter Fisk?",
+        back: `
+          <ul class="list-disc list-inside space-y-1.5 text-xs text-slate-200">
+            <li><strong class="text-brand-300">1. Soberanía del consumidor:</strong> Elección mediante el "voto cotidiano" en el mercado.</li>
+            <li><strong class="text-brand-300">2. Ajuste Oferta / Demanda:</strong> Equilibrio mediante el sistema de precios.</li>
+            <li><strong class="text-brand-300">3. Empleo y Capacidad de Compra:</strong> Generación de puestos directos e indirectos.</li>
+            <li><strong class="text-brand-300">4. Cita Peter Drucker:</strong> <em>"El marketing es el principal multiplicador del desarrollo económico"</em>.</li>
+          </ul>
+        `
+      },
+      {
+        id: 3,
+        category: "Información Comercial",
+        front: "¿Cuáles son los 3 Requisitos Obligatorios de la Información Comercial?",
+        back: `
+          <div class="space-y-2 text-xs">
+            <div class="p-2 rounded-lg bg-slate-900 border border-slate-800">
+              <strong class="text-emerald-400 block">1. Reducir la Incertidumbre:</strong> Aportar conocimiento relevante sobre el mercado.
+            </div>
+            <div class="p-2 rounded-lg bg-slate-900 border border-slate-800">
+              <strong class="text-emerald-400 block">2. Influir en la Decisión:</strong> Modificar el curso estratégico de acción.
+            </div>
+            <div class="p-2 rounded-lg bg-slate-900 border border-slate-800">
+              <strong class="text-emerald-400 block">3. Justificar su Coste:</strong> Rentabilidad de la información (Beneficio &gt; Coste).
+            </div>
+          </div>
+        `
+      },
+      {
+        id: 4,
+        category: "Investigación Comercial",
+        front: "Enumera las 4 Fases de la Investigación Comercial y sus subfases clave.",
+        back: `
+          <ol class="list-decimal list-inside space-y-1.5 text-xs text-slate-200">
+            <li><strong class="text-brand-300">DISEÑO:</strong> Definición del problema, tipo (exploratorio, descriptivo, causal), hipótesis y variables.</li>
+            <li><strong class="text-brand-300">OBTENCIÓN:</strong> Fuentes secundarias primero; luego primarias (cualitativas/cuantitativas) y muestreo.</li>
+            <li><strong class="text-brand-300">TRATAMIENTO Y ANÁLISIS:</strong> Codificación, tabulación y estadística (uni/bi/multivariado).</li>
+            <li><strong class="text-brand-300">CONCLUSIONES:</strong> Informe final y recomendaciones directivas.</li>
+          </ol>
+        `
+      },
+      {
+        id: 5,
+        category: "Marco Legal GVA",
+        front: "¿Cuál es el Trinomio Normativo Obligatorio (Marco Legal)?",
+        back: `
+          <ul class="list-disc list-inside space-y-2 text-xs text-slate-200">
+            <li><strong class="text-indigo-300">1. Estatal General:</strong> Ley Orgánica 2/2006 (LOE) modificada por Ley Orgánica 3/2020 (LOMLOE).</li>
+            <li><strong class="text-indigo-300">2. FP Estatal:</strong> Ley Orgánica 3/2022 de ordenación de FP y Real Decreto 659/2023.</li>
+            <li><strong class="text-indigo-300">3. Autonómico GVA:</strong> Decretos curriculares regulados en el DOGV por la Conselleria d'Educació.</li>
+          </ul>
+        `
+      }
+    ];
+
+    // Test Question Data Array
+    const testQuestions = [
+      {
+        id: 1,
+        question: "¿En cuál de las fases de evolución del enfoque comercial se corre el riesgo directo de sufrir 'Miopía del Marketing' según Theodore Levitt?",
+        options: [
+          "A) Enfoque Producción",
+          "B) Enfoque Producto",
+          "C) Enfoque Ventas",
+          "D) Enfoque Marketing Holístico"
+        ],
+        correct: 1,
+        explanation: "¡Correcto! El Enfoque Producto se centra excesivamente en la excelencia técnica del producto, descuidando si las necesidades reales del consumidor cambian, lo que Levitt acuñó como 'Miopía del Marketing'."
+      },
+      {
+        id: 2,
+        question: "¿Cuáles son los 3 requisitos obligatorios que debe cumplir la información de mercado para ser útil según el Tema 59?",
+        options: [
+          "A) Ser cuantitativa, internacional e inmediata",
+          "B) Reducir la incertidumbre, influir en la decisión y justificar su coste (Beneficio > Coste)",
+          "C) Ser gratuita, pública y auditada por el DOGV",
+          "D) Provenir de fuentes primarias, entrevistas y panelería"
+        ],
+        correct: 1,
+        explanation: "¡Correcto! Según el C.A.R.D. del Tema 59, la información comercial debe: 1) Reducir incertidumbre, 2) Influir en decisiones y 3) Que el valor generado supere el coste de obtención."
+      },
+      {
+        id: 3,
+        question: "Dentro del Trinomio Normativo para las Oposiciones ADE en la GVA, ¿cuál es la Ley Orgánica estatal de ordenación de la Formación Profesional vigente?",
+        options: [
+          "A) Ley Orgánica 5/2002 de Cualificaciones",
+          "B) Ley Orgánica 3/2022, de 31 de marzo",
+          "C) Decreto 72/2021 de la GVA",
+          "D) Real Decreto 1538/2006"
+        ],
+        correct: 1,
+        explanation: "¡Correcto! La LO 3/2022 de ordenación e integración de la FP (junto a su desarrollo en el RD 659/2023) constituye el pilar básico estatal del trinomio normativo de FP."
+      },
+      {
+        id: 4,
+        question: "En la ejecución de la Investigación Comercial, ¿cuál es el orden metodológico secuencial correcto de sus 4 fases?",
+        options: [
+          "A) 1. Obtención, 2. Diseño, 3. Conclusiones, 4. Análisis",
+          "B) 1. Diseño, 2. Obtención, 3. Tratamiento y Análisis, 4. Conclusiones e Informe",
+          "C) 1. Muestreo, 2. Tabulación, 3. Gráficos, 4. Venta",
+          "D) 1. Análisis Causal, 2. Enfoque, 3. Encuestas, 4. DOGV"
+        ],
+        correct: 1,
+        explanation: "¡Correcto! La secuencia metodológica exigida es: 1. DISEÑO (problema e hipótesis) -> 2. OBTENCIÓN (fuentes sec/prim) -> 3. TRATAMIENTO Y ANÁLISIS -> 4. CONCLUSIONES e informe final."
+      },
+      {
+        id: 5,
+        question: "¿Qué módulo profesional atribuido a ADE en FP aborda de forma directa el itinerario emprendedor y la viabilidad comercial?",
+        options: [
+          "A) Escaparatismo y Diseño Institucional",
+          "B) Itinerario Personal para la Empleabilidad I y II (Códigos 1709 / 1710)",
+          "C) Logística de Almacenamiento Especial",
+          "D) Comercio Electrónico y Redes"
+        ],
+        correct: 1,
+        explanation: "¡Correcto! Los módulos de IPE I y II (1709/1710) junto al Proyecto Intermodular son claves en la atribución docente de ADE para trabajar el plan de empresa y estudio de mercado."
+      }
+    ];
+
+    // Navigation functions
+    function switchTab(tabId) {
+      state.activeTab = tabId;
+
+      // Hide all sections
+      document.getElementById('sec-flashcards').classList.add('hidden');
+      document.getElementById('sec-test').classList.add('hidden');
+      document.getElementById('sec-pills').classList.add('hidden');
+
+      // Reset tab button styles
+      const tabBtns = ['flashcards', 'test', 'pills'];
+      tabBtns.forEach(t => {
+        const btn = document.getElementById(`tab-btn-${t}`);
+        btn.className = "flex flex-col items-center justify-center py-1.5 px-3 rounded-xl transition text-slate-400 hover:text-slate-200";
+      });
+
+      // Show selected section & highlight tab
+      document.getElementById(`sec-${tabId}`).classList.remove('hidden');
+      const activeBtn = document.getElementById(`tab-btn-${tabId}`);
+      activeBtn.className = "flex flex-col items-center justify-center py-1.5 px-3 rounded-xl transition text-brand-400 bg-brand-500/10 font-bold";
+    }
+
+    // Flashcard Rendering & Logic
+    function renderCard() {
+      const card = flashcardsData[state.currentCardIndex];
+      const cardInner = document.getElementById('flashcard-inner');
+      
+      // Ensure front is showing when changing card
+      if (state.isFlipped) {
+        cardInner.classList.remove('is-flipped');
+        state.isFlipped = false;
+      }
+
+      setTimeout(() => {
+        document.getElementById('fc-category').innerText = `TEMA 59 • ${card.category}`;
+        document.getElementById('fc-front-text').innerText = card.front;
+        document.getElementById('fc-back-content').innerHTML = card.back;
+        document.getElementById('fc-progress-text').innerText = `Tarjeta ${state.currentCardIndex + 1} / ${flashcardsData.length}`;
+        document.getElementById('fc-counter').innerText = `${state.currentCardIndex + 1} / ${flashcardsData.length}`;
+
+        // Status badge
+        const evalStatus = state.cardsEvaluations[card.id];
+        const statusBadge = document.getElementById('fc-status-badge');
+        if (evalStatus === 'easy') {
+          statusBadge.className = "px-2.5 py-1 rounded-md bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30";
+          statusBadge.innerText = "Dominada (Fácil)";
+        } else if (evalStatus === 'medium') {
+          statusBadge.className = "px-2.5 py-1 rounded-md bg-amber-500/20 text-amber-400 font-bold border border-amber-500/30";
+          statusBadge.innerText = "Revisar (Regular)";
+        } else if (evalStatus === 'hard') {
+          statusBadge.className = "px-2.5 py-1 rounded-md bg-rose-500/20 text-rose-400 font-bold border border-rose-500/30";
+          statusBadge.innerText = "Prioritaria (Difícil)";
+        } else {
+          statusBadge.className = "px-2.5 py-1 rounded-md bg-slate-800 text-slate-400";
+          statusBadge.innerText = "Pendiente";
+        }
+      }, state.isFlipped ? 250 : 0);
+    }
+
+    function toggleCardFlip() {
+      state.isFlipped = !state.isFlipped;
+      const cardInner = document.getElementById('flashcard-inner');
+      cardInner.classList.toggle('is-flipped', state.isFlipped);
+    }
+
+    function evaluateCard(level, event) {
+      if (event) event.stopPropagation();
+      const currentCard = flashcardsData[state.currentCardIndex];
+      state.cardsEvaluations[currentCard.id] = level;
+      
+      // Move to next card automatically after brief feedback
+      if (state.currentCardIndex < flashcardsData.length - 1) {
+        state.currentCardIndex++;
+        renderCard();
+      } else {
+        renderCard();
+      }
+    }
+
+    function navigateCard(direction) {
+      const newIndex = state.currentCardIndex + direction;
+      if (newIndex >= 0 && newIndex < flashcardsData.length) {
+        state.currentCardIndex = newIndex;
+        renderCard();
+      }
+    }
+
+    function resetFlashcards() {
+      state.currentCardIndex = 0;
+      state.cardsEvaluations = {};
+      renderCard();
+    }
+
+    // Render Test Questions
+    function renderTest() {
+      const container = document.getElementById('test-questions-container');
+      container.innerHTML = '';
+
+      testQuestions.forEach((q, qIndex) => {
+        const selectedOpt = state.userAnswers[q.id];
+        const isAnswered = selectedOpt !== undefined;
+        const isCorrect = isAnswered && selectedOpt === q.correct;
+
+        const cardEl = document.createElement('div');
+        cardEl.className = "bg-slate-900/90 rounded-2xl p-4 border border-slate-800 space-y-3 shadow-md";
+
+        let optionsHtml = '';
+        q.options.forEach((optText, optIdx) => {
+          let btnStyle = "bg-slate-800/80 text-slate-300 border-slate-700/80 hover:bg-slate-700";
+          let iconHtml = '';
+
+          if (isAnswered) {
+            if (optIdx === q.correct) {
+              btnStyle = "bg-emerald-500/20 text-emerald-300 border-emerald-500/50 font-semibold";
+              iconHtml = '<i class="fa-solid fa-circle-check text-emerald-400 ml-auto"></i>';
+            } else if (selectedOpt === optIdx) {
+              btnStyle = "bg-rose-500/20 text-rose-300 border-rose-500/50 font-semibold";
+              iconHtml = '<i class="fa-solid fa-circle-xmark text-rose-400 ml-auto"></i>';
+            } else {
+              btnStyle = "bg-slate-900/40 text-slate-500 border-slate-800 opacity-60";
+            }
+          }
+
+          optionsHtml += `
+            <button 
+              onclick="selectAnswer(${q.id}, ${optIdx})" 
+              ${isAnswered ? 'disabled' : ''} 
+              class="w-full text-left p-3 rounded-xl border text-xs transition flex items-center justify-between active:scale-[0.99] ${btnStyle}">
+              <span>${optText}</span>
+              ${iconHtml}
+            </button>
+          `;
+        });
+
+        let feedbackHtml = '';
+        if (isAnswered) {
+          feedbackHtml = `
+            <div class="mt-3 p-3 rounded-xl border text-xs leading-relaxed ${isCorrect ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300' : 'bg-rose-500/10 border-rose-500/30 text-rose-300'}">
+              <div class="font-bold flex items-center gap-1.5 mb-1">
+                <i class="${isCorrect ? 'fa-solid fa-circle-check text-emerald-400' : 'fa-solid fa-circle-exclamation text-rose-400'}"></i>
+                <span>${isCorrect ? '¡Respuesta Correcta!' : 'Explicación Examen GVA:'}</span>
+              </div>
+              <p class="text-slate-300">${q.explanation}</p>
+            </div>
+          `;
+        }
+
+        cardEl.innerHTML = `
+          <div class="flex items-start justify-between gap-2">
+            <span class="text-xs font-black uppercase text-brand-400 tracking-wider">Pregunta ${qIndex + 1} de 5</span>
+            ${isAnswered ? (isCorrect ? '<span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">+1.0 Puntos</span>' : '<span class="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 border border-rose-500/30">Fallada</span>') : ''}
+          </div>
+          <p class="text-sm font-bold text-white leading-snug">${q.question}</p>
+          <div class="space-y-2 pt-1">
+            ${optionsHtml}
+          </div>
+          ${feedbackHtml}
+        `;
+
+        container.appendChild(cardEl);
+      });
+
+      updateScoreBadge();
+    }
+
+    function selectAnswer(questionId, optionIndex) {
+      state.userAnswers[questionId] = optionIndex;
+      renderTest();
+    }
+
+    function updateScoreBadge() {
+      let correctCount = 0;
+      testQuestions.forEach(q => {
+        if (state.userAnswers[q.id] === q.correct) {
+          correctCount++;
+        }
+      });
+      document.getElementById('test-score-badge').innerText = `Score: ${correctCount}/5`;
+    }
+
+    function resetTest() {
+      state.userAnswers = {};
+      renderTest();
+    }
+
+    // Accordion Toggle for Section 3
+    function toggleAccordion(accId) {
+      const content = document.getElementById(accId);
+      const icon = document.getElementById(`${accId}-icon`);
+      const isHidden = content.classList.contains('hidden');
+
+      if (isHidden) {
+        content.classList.remove('hidden');
+        icon.classList.add('rotate-180');
+      } else {
+        content.classList.add('hidden');
+        icon.classList.remove('rotate-180');
+      }
+    }
+
+    // App Initialization
+    window.onload = function() {
+      renderCard();
+      renderTest();
+    };
+  </script>
+</body>
+</html>
